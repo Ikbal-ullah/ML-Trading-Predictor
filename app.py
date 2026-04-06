@@ -64,8 +64,9 @@ st.subheader("🔮 Tomorrow's Prediction")
 # Professional Inference Logic:
 # We grab the last row as a DataFrame to maintain 'Feature Names'
 # This prevents the UserWarning about feature name mismatch
+predictions = model.predict(pd.DataFrame(X_test, columns=features))
 latest_row = X.tail(1) 
-tomorrow_pred = model.predict(latest_row)
+tomorrow_pred = model.predict(pd.DataFrame(latest_row, columns=features))
 
 if tomorrow_pred[0] == 1:
     st.success(f"**SIGNAL: BUY** - The model predicts the price will close **HIGHER** tomorrow.")
