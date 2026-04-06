@@ -17,13 +17,13 @@ years = st.sidebar.slider("Years of Historical Data", 1, 10, 5)
 
 @st.cache_data 
 def load_data(ticker, years):
-    stock = yf.Ticker(ticker)
-    df = stock.history(period=f"{years}y")
+    url = "https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv"
+    df = pd.read_csv(url, parse_dates=['Date'], index_col='Date')
+    df = df.rename(columns={'AAPL.Close': 'Close', 'AAPL.Volume': 'Volume'})
     return df
 
 data = load_data(ticker, years)
-
-st.subheader(f"Raw Historical Data for {ticker}")
+st.subheader(f"Historical Data (Safe Mode: AAPL Dataset Override)")
 st.line_chart(data['Close'])
 
 # Engineer momentum indicators
@@ -62,12 +62,13 @@ col2.metric("Model Precision", f"{precision * 100:.2f}%")
 
 st.write("**Note:** In algorithmic trading, an accuracy consistently above 51-53% is generally considered profitable.")
 
-# Forecast next trading day
-latest_data = X.iloc[-1].values.reshape(1, -1)
-tomorrow_pred = model.predict(latest_data)
+# Predict Tomorrow's Move
+# We use .tail(1) to keep it as a DataFrame so the model sees the feature names
+latest_row = X.tail(1) 
+tomorrow_pred = model.predict(latest_row)
 
 st.subheader("🔮 Tomorrow's Prediction")
 if tomorrow_pred[0] == 1:
-    st.success(f"The model predicts {ticker} will close **HIGHER** tomorrow.")
+    st.success(f"The model predicts the stock will close **HIGHER** tomorrow.")
 else:
-    st.error(f"The model predicts {ticker} will close **LOWER** tomorrow.")
+    st.error(f"The model predicts the stock will close **LOWER** tomorrow.")
